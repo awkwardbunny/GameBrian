@@ -35,7 +35,7 @@ class GBAIO extends Bundle {
   val board = new GBABoardIO
 }
 
-class GBA extends Module {
+class GBA(romFilename: String) extends Module {
   val io = IO(new GBAIO)
 
   dontTouch(io.host.CLK)
@@ -61,17 +61,16 @@ class GBA extends Module {
   val fCS = resyncCS(1) && !resyncCS(0)
   val fWR = resyncWR(1) && !resyncWR(0)
 
-  val rom_mem = Mem(610, UInt(16.W))
+  import java.io.FileInputStream
+  val romFile = new FileInputStream(romFilename)
+  val romData = Iterator.continually(romFile.read).takeWhile(_ != -1).toList.grouped(2).map {
+    case List(a,b) => (b*256+a).U(16.W)
+  }.toList
+  val rom_mem = VecInit(romData)
   val ram_mem = Mem(8, UInt(8.W))
 
-  /** readmemh is put inside a "ifndef SYNTHESIS" block so have to manually move it */
-  //annotate(new ChiselAnnotation {
-  //  override def toFirrtl = new LoadMemoryAnnotation(rom_mem.toNamed, "fire.mem")
-  //})
-  loadMemoryFromFileInline(rom_mem, "fire.mem")
-
   val rom_addr = Reg(UInt(16.W))
-  io.host.AD_out := rom_mem.read(rom_addr)
+  io.host.AD_out := rom_mem(rom_addr)
   io.host.A_out := ram_mem.read(io.host.A_in(3,0))
 
   when(!io.host.nCS && rRD){

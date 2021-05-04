@@ -14,10 +14,10 @@ class TopIO extends Bundle {
   }
 }
 
-class Top extends Module {
+class Top(romFilename: String) extends Module {
   val io = IO(new TopIO)
   withReset(!(reset asBool)) {
-    val gba = Module(new GBA)
+    val gba = Module(new GBA(romFilename))
     io.host.gba <> gba.io.host
     io.board.gba <> gba.io.board
 
