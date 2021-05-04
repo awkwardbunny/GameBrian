@@ -3,17 +3,26 @@ package dev.meirl.gamebrian
 import chisel3._
 
 class TopIO extends Bundle {
-  val gbaHost = new GBAHostIO
-  val blinkyHost = new BlinkyHostIO
+  val host = new Bundle {
+    val gba = new GBAHostIO()
+    val blinky = new BlinkyHostIO()
+  }
+
+  val board = new Bundle {
+    val gba = new GBABoardIO()
+    val blinky = new BlinkyBoardIO()
+  }
 }
 
 class Top extends Module {
   val io = IO(new TopIO)
   withReset(!(reset asBool)) {
     val gba = Module(new GBA)
-    io.gbaHost <> gba.io.host
+    io.host.gba <> gba.io.host
+    io.board.gba <> gba.io.board
 
     val blinky = Module(new Blinky)
-    io.blinkyHost <> blinky.io.host
+    io.host.blinky <> blinky.io.host
+    io.board.blinky <> blinky.io.board
   }
 }
