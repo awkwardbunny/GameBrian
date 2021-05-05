@@ -72,7 +72,7 @@ class GBA extends Module {
 
   val rom_addr = Reg(UInt(16.W))
   io.host.AD_out := rom_mem.read(rom_addr)
-  io.host.A_out := ram_mem.read(io.host.A_in(3,0))
+  io.host.A_out := ram_mem.read(io.host.AD_in(3,0))
 
   when(!io.host.nCS && rRD){
     rom_addr := rom_addr + 1.U
