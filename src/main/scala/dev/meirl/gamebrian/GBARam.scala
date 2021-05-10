@@ -22,11 +22,9 @@ class GBARam extends Module {
 
   io.card.bus.miso := ram.read(io.card.bus.addr)
 
-  val resyncWrite = RegInit(0.U(2.W))
-  val rWrite = !resyncWrite(1) && resyncWrite(0)
-  when(true.B){
-    resyncWrite := Cat(resyncWrite(0), io.card.bus.write)
-  }
+  val prevWrite = RegInit(false.B)
+  val rWrite = !prevWrite && io.card.bus.write
+  when(true.B) { prevWrite := io.card.bus.write }
 
   when(rWrite){
     ram.write(io.card.bus.addr, io.card.bus.mosi)
