@@ -31,7 +31,8 @@ class Top extends Module {
     io.host.gbaram <> gbaram.io.host
     io.board.gbaram <> gbaram.io.board
 
-    // No interconnect/arbiter for now
-    gba.io.card.bus <> gbaram.io.card.bus
+    val intercon = Module(new Interconnect)
+    intercon.io.gba <> gba.io.card.bus
+    intercon.io.ram <> gbaram.io.card.bus
   }
 }
